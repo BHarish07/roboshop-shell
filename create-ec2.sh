@@ -20,9 +20,11 @@ for name in ${instances[@]} ;do
 
   echo "Creating instances for $name with instance type $instance_type"
 
-  instance_id=$(aws ec2 run-instances --image-id $image_id  --instance-type $instance_type --key-name mumbai --security-group-ids $sg_id --subnet-id $subnet_id --tags Key=Name,Value=$name --query "Instances[0].InstanceId" --output text)
+  instance_id=$(aws ec2 run-instances --image-id $image_id  --instance-type $instance_type --key-name mumbai --security-group-ids $sg_id --subnet-id $subnet_id  --query "Instances[0].InstanceId" --output text)
 
   echo "Instance created for: $name"
+  
+  aws ec2 create-tags --resources $instance_id --tags Key=Name,Value=$name
   
   if [ $name == "web" ] 
   then 

@@ -27,3 +27,25 @@ then
 else
   echo "You are super user.."
 fi
+
+
+curl -s https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh | bash &>> $LOG_FILE
+VALIDATE $? "Erlang script installation"
+
+curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | bash &>> $LOG_FILE
+VALIDATE $? "Server script installation"
+
+dnf install rabbitmq-server -y  &>> $LOG_FILE
+VALIDATE $? "RabbitMQ installting "
+
+systemctl enable rabbitmq-server  &>> $LOG_FILE
+VALIDATE $? "Enabling RabbitMQ"
+
+systemctl start rabbitmq-server &>> $LOG_FILE
+VALIDATE $? "Starting RabbitMQ"
+
+rabbitmqctl add_user roboshop roboshop123 &>> $LOG_FILE
+VALIDATE $? "Adding RabbitMQ user"
+
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>> $LOG_FILE
+VALIDATE $? "Setting Permissions"

@@ -40,7 +40,7 @@ VALIDATE $? "Enabling mongoDB"
 systemctl start mongod &>> $LOG_FILE
 VALIDATE $? "Starting mongoDB"
 
-sed -i '/s/127.0.0.1/0.0.0.0/g' /etc/mongod.conf &>> $LOG_FILE
+sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf &>> $LOG_FILE
 VALIDATE $? "Remote server access"
 
 systemctl restart mongod &>> $LOG_FILE

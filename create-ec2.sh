@@ -12,9 +12,9 @@ for name in ${instances[@]} ;do
 
   if [ $name == "mysql" ] || [ $name == "shipping" ] 
   then
-    instances_type="t3.medium"
+    instance_type="t3.medium"
   else
-   instances_type="t3.micro"
+   instance_type="t3.micro"
 
   fi
 

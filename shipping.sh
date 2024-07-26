@@ -83,10 +83,11 @@ if [ $? -ne 0 ]
 then
     echo "Schema is Loading...."
     mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/schema/shipping.sql  &>> $LOG_FILE
-    VALIDATE $? "Loading Schema"
+    VALIDATE $? "Loading Schema" #if loading schema failed-->login to mysql server and use FLUSH HOSTS; and run the script
 else
     echo -e "Schema is already exists..$Y SKIPPING $N"
 fi
+
 
 systemctl restart shipping &>> $LOG_FILE
 VALIDATE $? "Restarting shipping"

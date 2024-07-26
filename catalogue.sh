@@ -94,5 +94,6 @@ mongosh --host $MONGODB_HOST </app/schema/catalogue.js &>> $LOG_FILE
 VALIDATE $? " Loading the data"
 else
   echo -e "Schema already exists...$Y SKIPPING $N"
-  
+fi
+
 

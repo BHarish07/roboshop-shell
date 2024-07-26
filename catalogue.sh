@@ -91,7 +91,7 @@ if [ $SCHEMA_EXISTS -lt 0 ]
 then
 echo "Schema does not exists....LOADING"
 mongosh --host $MONGODB_HOST </app/schema/catalogue.js &>> $LOG_FILE
-VALIDATE $? " Loading the data"
+VALIDATE $? "Loading the user data"
 else
   echo -e "Schema already exists...$Y SKIPPING $N"
 fi

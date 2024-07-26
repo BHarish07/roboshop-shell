@@ -55,26 +55,45 @@ VALIDATE $? "clean up existing directory"
 mkdir /app &>> $LOG_FILE
 VALIDATE $? "Creating app directory"
 
-curl -L -o /tmp/cart.zip https://roboshop-builds.s3.amazonaws.com/cart.zip  &>> $LOG_FILE
-VALIDATE $? "Downloading the cart application"
+curl -L -o /tmp/user.zip https://roboshop-builds.s3.amazonaws.com/user.zip  &>> $LOG_FILE
+VALIDATE $? "Downloading the user application"
 
 cd /app  &>> $LOG_FILE
 VALIDATE $? "Moving to the app directory"
 
-unzip /tmp/cart.zip &>> $LOG_FILE
-VALIDATE $? "Extracting the cart"
+unzip /tmp/user.zip &>> $LOG_FILE
+VALIDATE $? "Extracting the user"
 
 npm install  &>> $LOG_FILE
 VALIDATE $? "Installing dependencies"
 
-cp /home/ec2-user/roboshop-shell/cart.service /etc/systemd/system/cart.service &>> $LOG_FILE
-VALIDATE $? "Copying the cart service"
+cp /home/ec2-user/roboshop-shell/user.service /etc/systemd/system/user.service &>> $LOG_FILE
+VALIDATE $? "Copying the service"
 
 systemctl daemon-reload &>> $LOG_FILE
 VALIDATE $? "Daemon-reload"
 
-systemctl enable cart &>> $LOG_FILE
-VALIDATE $? "Enabling cart"
+systemctl enable user &>> $LOG_FILE
+VALIDATE $? "Enabling user"
 
-systemctl start cart &>> $LOG_FILE
-VALIDATE $? "Starting the cart"
+systemctl start user &>> $LOG_FILE
+VALIDATE $? "Starting the user"
+
+cp /home/ec2-user/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
+VALIDATE $? "Copying the mongo repo"
+
+dnf install -y mongodb-mongosh &>> $LOG_FILE
+VALIDATE $? "Installing mongodb client"
+ 
+SCHEMA_EXISTS=(mongo --host $MONGODB_HOST --eval "db.getMongo().getDBNames().indexOf('users')" --quiet)
+
+if [ $SCHEMA_EXISTS -lt 0 ]
+then
+echo "Schema does not exists....LOADING"
+mongosh --host $MONGODB_HOST </app/schema/user.js &>> $LOG_FILE
+VALIDATE $? "Loading the user data"
+else
+  echo -e "Schema already exists...$Y SKIPPING $N"
+fi
+
+

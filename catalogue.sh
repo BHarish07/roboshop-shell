@@ -43,8 +43,8 @@ VALIDATE $? "Installing NodeJS"
 id roboshop &>> $LOG_FILE
 if [ $? -ne 0 ]
 then
-useradd roboshop &>> $LOG_FILE
-VALIDATE $? "Adding user "
+  useradd roboshop &>> $LOG_FILE
+  VALIDATE $? "Adding user.."
 else
   echo -e "roboshop user already exists...$Y SKIPPING $N"
 fi
@@ -89,9 +89,9 @@ SCHEMA_EXISTS=(mongo --host $MONGODB_HOST --eval "db.getMongo().getDBNames().ind
 
 if [ $SCHEMA_EXISTS -lt 0 ]
 then
-echo "Schema does not exists....LOADING"
-mongosh --host $MONGODB_HOST </app/schema/catalogue.js &>> $LOG_FILE
-VALIDATE $? "Loading the user data"
+  echo "Schema does not exists....LOADING"
+  mongosh --host $MONGODB_HOST </app/schema/catalogue.js &>> $LOG_FILE
+  VALIDATE $? "Loading the user data"
 else
   echo -e "Schema already exists...$Y SKIPPING $N"
 fi

@@ -29,20 +29,29 @@ else
 fi
 
 
-dnf install nginx -y
+dnf install nginx -y &>> $LOG_FILE
+VALIDATE $? "Installing Nginx"
 
-systemctl enable nginx
+systemctl enable nginx &>> $LOG_FILE
+VALIDATE $? "Enabling Nginx"
 
-systemctl start nginx
+systemctl start nginx &>> $LOG_FILE
+VALIDATE $? "Starting Nginx"
 
-rm -rf /usr/share/nginx/html/*
+rm -rf /usr/share/nginx/html/* &>> $LOG_FILE
+VALIDATE $? "Removing the default site"
 
-curl -o /tmp/web.zip https://roboshop-builds.s3.amazonaws.com/web.zip
+curl -o /tmp/web.zip https://roboshop-builds.s3.amazonaws.com/web.zip &>> $LOG_FILE
+VALIDATE $? "Downloading web application"
 
-cd /usr/share/nginx/html
+cd /usr/share/nginx/html &>> $LOG_FILE
+VALIDATE $? "Moving to html directory"
 
-unzip /tmp/web.zip
+unzip /tmp/web.zip &>> $LOG_FILE
+VALIDATE $? "Extracting web application"
 
-cp roboshop.conf /etc/nginx/default.d/roboshop.conf 
+cp /home/ec2-user/roboshop-shell/roboshop.conf /etc/nginx/default.d/roboshop.conf  &>> $LOG_FILE
+VALIDATE $? "Copying roboshop conf"
 
-systemctl restart nginx 
+systemctl restart nginx  &>> $LOG_FILE
+VALIDATE $? "Restarting Nginx"

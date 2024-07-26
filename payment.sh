@@ -40,11 +40,15 @@ else
     echo -e "roboshop user already added.. $Y SKIPPING $N"
 fi
 
+
+rm -rf /app &>> $LOGFILE
+VALIDATE $? "clean up existing directory"
+
 mkdir /app  &>> $LOG_FILE
 VALIDATE $? "Creating app directory"
 
 curl -L -o /tmp/payment.zip https://roboshop-builds.s3.amazonaws.com/payment.zip &>> $LOG_FILE
-VALIDATE $? "Downloading payment application"
+VALIDATE $? "Downloading the payment application"
 
 cd /app  &>> $LOG_FILE
 VALIDATE $? "Moving to app directory"

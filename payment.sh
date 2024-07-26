@@ -41,7 +41,7 @@ else
 fi
 
 
-rm -rf /app &>> $LOGFILE
+rm -rf /app &>> $LOG_FILE
 VALIDATE $? "clean up existing directory"
 
 mkdir /app  &>> $LOG_FILE

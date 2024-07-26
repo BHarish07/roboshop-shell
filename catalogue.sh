@@ -8,6 +8,8 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
+MONGODB_HOST="mongodb.harishbalike.online"  
+
 
 VALIDATE(){
     if [ $1 -ne 0 ]
@@ -38,8 +40,17 @@ VALIDATE $? "Enabling nodejs20"
 dnf install nodejs -y &>> $LOG_FILE
 VALIDATE $? "Installing NodeJS"
 
+id roboshop &>> $LOG_FILE
+if [ $? -ne 0 ]
+then
 useradd roboshop &>> $LOG_FILE
 VALIDATE $? "Adding user "
+else
+  echo -e "roboshop user already exists...$Y SKIPPING $N"
+fi
+
+rm -rf /app $>> $LOG_FILE
+VALIDATE $? "clean up existing directory"
 
 mkdir /app &>> $LOG_FILE
 VALIDATE $? "Creating directory"
@@ -48,17 +59,18 @@ curl -o /tmp/catalogue.zip https://roboshop-builds.s3.amazonaws.com/catalogue.zi
 VALIDATE $? "Downloading the source code"
 
 cd /app  &>> $LOG_FILE
-VALIDATE $? "switching to the directory"
+VALIDATE $? "Moving to the app directory"
 
 unzip /tmp/catalogue.zip &>> $LOG_FILE
-VALIDATE $? "Unzipping the files"
+VALIDATE $? "Extracting the catalogue"
 
 npm install  &>> $LOG_FILE
 VALIDATE $? "Installing NPM"
 
-cp catalogue.service /etc/systemd/system/catalogue.service &>> $LOG_FILE
+cp /home/ec2-user/roboshop-shell/catalogue.service /etc/systemd/system/catalogue.service &>> $LOG_FILE
 VALIDATE $? "Copying the service"
-/home/systemctl daemon-reload &>> $LOG_FILE
+
+systemctl daemon-reload &>> $LOG_FILE
 VALIDATE $? "Daemon-reload"
 
 systemctl enable catalogue &>> $LOG_FILE
@@ -67,12 +79,20 @@ VALIDATE $? "Enabling catalogue"
 systemctl start catalogue &>> $LOG_FILE
 VALIDATE $? "Starting the Catalogue"
 
-cp mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
-VALIDATE $? " copying the mongo repo"
+cp /home/ec2-user/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
+VALIDATE $? "Copying the mongo repo"
 
 dnf install -y mongodb-mongosh &>> $LOG_FILE
 VALIDATE $? "Installing mongodb client"
  
-mongosh --host mongodb.harishbalike.online </app/schema/catalogue.js &>> $LOG_FILE
+SCHEMA_EXISTS=(mongo --host $MONGODB_HOST --eval "db.getMongo().getDBNames().indexOf('catalogue')" --quiet)
+
+if [ $SCHEMA_EXISTS -lt 0 ]
+then
+echo "Schema does not exists....LOADING"
+mongosh --host $MONGODB_HOST </app/schema/catalogue.js &>> $LOG_FILE
 VALIDATE $? " Loading the data"
+else
+  echo -e "Schema already exists...$Y SKIPPING $N"
+  
 

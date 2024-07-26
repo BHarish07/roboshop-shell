@@ -58,8 +58,7 @@ VALIDATE $? "Installing NPM"
 
 cp catalogue.service /etc/systemd/system/catalogue.service &>> $LOG_FILE
 VALIDATE $? "Copying the service"
-
-systemctl daemon-reload &>> $LOG_FILE
+/home/systemctl daemon-reload &>> $LOG_FILE
 VALIDATE $? "Daemon-reload"
 
 systemctl enable catalogue &>> $LOG_FILE

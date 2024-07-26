@@ -4,7 +4,7 @@ instances=("mongodb" "redis" "mysql" "rabbitmq" "catalogue" "user" "cart" "shipp
 domain_name="harishbalike.online"
 hosted_zone_id="Z013862017DKOONOMKNDC"
 region="us-east-1"
-sg_id="sg-08492f9229eff00e6"
+sg_id="sg-0222747a4f3b3b380"
 subnet_id="subnet-039c946b04bc14df1"
 image_id="ami-041e2ea9402c46c32"
 

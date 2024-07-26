@@ -76,12 +76,12 @@ VALIDATE $? "Starting shipping"
 
 dnf install mysql -y &>> $LOGFILE
 VALIDATE $? "Installing MySQL"
-
+sed -i 's/FLUSH PRIVILEGES/-- FLUSH PRIVILEGES' /app/schema/shipping.sql
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e "use cities" &>> $LOGFILE
 if [ $? -ne 0 ]
 then
     echo "Schema is ... LOADING"
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/schema/shipping.sql &>> $LOGFILE
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/schema/shipping.sql &>> $LOGFILE  #use this cmd and edit the shipping.sql with sudo --delete FLUSH PRIVILEGES;
     VALIDATE $? "Loading schema"
 else
     echo -e "Schema already exists... $Y SKIPPING $N"

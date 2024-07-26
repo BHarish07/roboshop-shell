@@ -3,91 +3,97 @@
 USERID=$(id -u)
 TIMESTAMP=$(date +%F-%H-%M-%S)
 SCRIPT_NAME=$(echo $0 | cut -d "." -f1)
-LOGFILE=/tmp/$SCRIPT_NAME-$TIMESTAMP.log
+LOG_FILE=/tmp/$SCRIPT_NAME-$TIMESTAMP.log
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-MONGO_HOST=mongodb.harishbalike.online
+MONGODB_HOST="mongodb.harishbalike.online"  
+
 
 VALIDATE(){
-   if [ $1 -ne 0 ]
-   then
-        echo -e "$2...$R FAILURE $N"
-        exit 1
+    if [ $1 -ne 0 ]
+    then 
+      echo -e "$2....$R FAILURE $N"
+      exit 1
     else
-        echo -e "$2...$G SUCCESS $N"
-    fi
+      echo -e "$2....$G SUCCESS $N"
+    fi 
+
 }
 
 if [ $USERID -ne 0 ]
 then
-    echo "Please run this script with root access."
-    exit 1 # manually exit if error comes.
+ echo "Please run this script with root access..."
+ exit 1
 else
-    echo "You are super user."
+  echo "You are super user.."
 fi
 
-dnf module disable nodejs -y &>> $LOGFILE
-VALIDATE $? "Disabling current nodejs"
 
-dnf module enable nodejs:20 -y &>> $LOGFILE
-VALIDATE $? "Enabling nodejs:20"
+dnf module disable nodejs -y &>> $LOG_FILE
+VALIDATE $? "Disabling nodejs"
 
-dnf install nodejs -y &>> $LOGFILE
+dnf module enable nodejs:20 -y  &>> $LOG_FILE
+VALIDATE $? "Enabling nodejs20"
+
+dnf install nodejs -y &>> $LOG_FILE
 VALIDATE $? "Installing NodeJS"
 
-id roboshop &>> $LOGFILE
+id roboshop &>> $LOG_FILE
 if [ $? -ne 0 ]
 then
-    useradd roboshop &>> $LOGFILE
-    VALIDATE $? "Adding roboshop user"
+  useradd roboshop &>> $LOG_FILE
+  VALIDATE $? "Adding user.."
 else
-    echo -e "roboshop user already exist...$Y SKIPPING $N"
+  echo -e "roboshop user already exists...$Y SKIPPING $N"
 fi
 
-rm -rf /app &>> $LOGFILE
+rm -rf /app $>> $LOG_FILE
 VALIDATE $? "clean up existing directory"
 
-mkdir -p /app &>> $LOGFILE
+mkdir /app &>> $LOG_FILE
 VALIDATE $? "Creating app directory"
 
-curl -o /tmp/catalogue.zip https://roboshop-builds.s3.amazonaws.com/catalogue.zip &>> $LOGFILE
-VALIDATE $? "downloading catalogue application"
+curl -L-o /tmp/catalogue.zip https://roboshop-builds.s3.amazonaws.com/catalogue.zip  &>> $LOG_FILE
+VALIDATE $? "Downloading the catalogue application"
 
-cd /app  &>> $LOGFILE
-VALIDATE $? "Moving to app directory"
+cd /app  &>> $LOG_FILE
+VALIDATE $? "Moving to the app directory"
 
-unzip /tmp/catalogue.zip &>> $LOGFILE
-VALIDATE $? "extracting catalogue"
+unzip /tmp/catalogue.zip &>> $LOG_FILE
+VALIDATE $? "Extracting the catalogue"
 
-npm install &>> $LOGFILE
+npm install  &>> $LOG_FILE
 VALIDATE $? "Installing dependencies"
 
-cp /home/ec2-user/roboshop-shell/catalogue.service /etc/systemd/system/catalogue.service &>> $LOGFILE
+cp /home/ec2-user/roboshop-shell/catalogue.service /etc/systemd/system/catalogue.service &>> $LOG_FILE
+VALIDATE $? "Copying the service"
 
-systemctl daemon-reload &>> $LOGFILE
-VALIDATE $? "Daemon reload"
+systemctl daemon-reload &>> $LOG_FILE
+VALIDATE $? "Daemon-reload"
 
-systemctl enable catalogue &>> $LOGFILE
-VALIDATE $? "Enable catalogue"
+systemctl enable catalogue &>> $LOG_FILE
+VALIDATE $? "Enabling catalogue"
 
-systemctl start catalogue &>> $LOGFILE
-VALIDATE $? "Start catalogue"
+systemctl start catalogue &>> $LOG_FILE
+VALIDATE $? "Starting the Catalogue"
 
-cp /home/ec2-user/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOGFILE
-VALIDATE $? "Copying mongo repo"
+cp /home/ec2-user/roboshop-shell/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOG_FILE
+VALIDATE $? "Copying the mongo repo"
 
-dnf install -y mongodb-mongosh &>> $LOGFILE
-VALIDATE $? "Installing mongo client"
-
-SCHEMA_EXISTS=$(mongosh --host $MONGO_HOST --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')") &>> $LOGFILE
+dnf install -y mongodb-mongosh &>> $LOG_FILE
+VALIDATE $? "Installing mongodb client"
+ 
+SCHEMA_EXISTS=$(mongosh --host $MONGODB_HOST --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')" )
 
 if [ $SCHEMA_EXISTS -lt 0 ]
 then
-    echo "Schema does not exists ... LOADING"
-    mongosh --host $MONGO_HOST </app/schema/catalogue.js &>> $LOGFILE
-    VALIDATE $? "Loading catalogue data"
+  echo "Schema does not exists....LOADING"
+  mongosh --host $MONGODB_HOST </app/schema/catalogue.js &>> $LOG_FILE
+  VALIDATE $? "Loading the user data"
 else
-    echo -e "schema already exists... $Y SKIPPING $N"
+  echo -e "Schema already exists...$Y SKIPPING $N"
 fi
+
+

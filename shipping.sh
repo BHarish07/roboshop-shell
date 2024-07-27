@@ -77,7 +77,7 @@ VALIDATE $? "Starting shipping"
 dnf install mysql -y &>> $LOG_FILE
 VALIDATE $? "Installing MySQL"
 
-sed -i 's/FLUSH PRIVILEGES/-- FLUSH PRIVILEGES/' /app/schema/shipping.sql &>> $LOG_FILE
+#sed -i 's/FLUSH PRIVILEGES/-- FLUSH PRIVILEGES/' /app/schema/shipping.sql &>> $LOG_FILE
 
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e "use cities" &>> $LOG_FILE
